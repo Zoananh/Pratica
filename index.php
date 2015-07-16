@@ -48,7 +48,7 @@ if(copy($_FILES["filename"]["tmp_name"],$path.$_FILES["filename"]["name"])){
 echo("Файл "."<b>".$_FILES["filename"]["name"]."</b>"." успешно загружен!<br>");
 $dsn->query("DROP TABLE IF EXISTS markID");
 $dsn->query("DROP TABLE IF EXISTS partID");
-$dsn->query("DROP TABLE IF EXISTS cost");
+$dsn->query("DROP TABLE IF EXISTS price_list");
 /*$stmt=$dsn->prepare('DROP TABLE IF EXISTS :tablename');
 $stmt->bindParam(':tablename', $tablename);
 $tablename ='markID';
@@ -56,7 +56,7 @@ $tablename ='partD';
 $tablename ='cost';
 $stmt->execute();
 */
-/*$dsn->query("CREATE TABLE `markID`(
+$dsn->query("CREATE TABLE `markID`(
 
 `id_mark` INT(4) NOT NULL AUTO_INCREMENT,
 `name` TEXT(125) NOT NULL,
@@ -72,20 +72,30 @@ PRIMARY KEY(`id_part`)
 
 $dsn->query("CREATE TABLE `price_list`(
 `id_mark` INT(4) NOT NULL,
-`model` TEXT(150) NOT NULL,
-`year` TEXT(20) NOT NULL,
-PRIMARY KEY(`id_mark`)
+`model` VARCHAR(125) NOT NULL,
+`year` VARCHAR(125) NOT NULL,
+`id_part` INT(4) NOT NULL,
+`price` DOUBLE
 )");
 
-$fname = $data->sheets[0]["cells"][3][1];
+$id=1;
 for ($x = 2; $x <= count($data->sheets[0]["cells"]); $x++) {
     $name = $data->sheets[0]["cells"][$x][1];
+    $model = $data->sheets[0]["cells"][$x][2];
+    $year = $data->sheets[0]["cells"][$x][3];
+    $fname = $data->sheets[0]["cells"][$x+1][1];
     if($fname!=$name){
     $fname = $name;
     $dsn->query("INSERT INTO markID (name) 
         VALUES ('$name')" );
 
     }
+    for ($i = 1; $i <= 6; $i++) {
+        $price = $data->sheets[0]["cells"][$x][$i+3];
+    $dsn->query("INSERT INTO price_list (id_mark,model,year,id_part,price) 
+        VALUES ('$id','$model','$year','$i','$price')" );
+        }
+    $id++;
 }
 
 for ($y = 4; $y <=9; $y++) {
@@ -93,7 +103,7 @@ for ($y = 4; $y <=9; $y++) {
     $qslqerry=("INSERT INTO partID (name) 
         VALUES ('$partname')");
     $dsn->query($qslqerry);
-    }*/
+    }
     }
     else{
         echo 'Ошибка загрузки файла<br>';
