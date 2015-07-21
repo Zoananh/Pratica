@@ -65,10 +65,10 @@ PRIMARY KEY(`id`)
 )" );
 
 $dsn->query("CREATE TABLE `price_list`(
-`id_mark` INT(4) NOT NULL INDEX,
+`id_mark` INT(4) NOT NULL,
 `model` VARCHAR(125) NOT NULL,
 `year` VARCHAR(125) NOT NULL,
-`id_part` INT(4) NOT NULL INDEX,
+`id_part` INT(4) NOT NULL,
 `price` DOUBLE
 )");
 
@@ -80,13 +80,26 @@ unset($records[0]);
 $mark=array_column($records,0);
 
 $uniqmark=array_unique($mark);
-foreach ($uniqmark as $name){
+foreach ($uniqmark as $key => $name){
     $dsn->query("INSERT INTO markID (name) 
         VALUES ('".$name."')" );
 }
-
-
-
+$newuniqrec = array_values($uniqmark);
+foreach($records as $rec_col){
+    $model = $rec_col[1];
+    $mark = $rec_col[0];
+    foreach($newuniqrec as $key=>$value){
+        if($mark==$value){
+            $idmark=$key+1;
+        }
+    }
+    $year = $rec_col[2];
+    for ($i = 1; $i < 7; $i++) {
+        $price = $rec_col[$i+2];
+    $dsn->query("INSERT INTO price_list (id_mark,model,year,id_part,price) 
+        VALUES (' ". $idmark ." ',' ". $model ." ',' ". $year . "','" . $i ." ','" . $price . "')" );
+        }   
+}
 
 
 
